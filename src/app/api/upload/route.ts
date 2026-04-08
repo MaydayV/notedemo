@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error }, { status: 400 });
   }
 
-  const blob = await put(`notes/${Date.now()}-${file.name}`, file, { access: 'public' });
+  const safeFile = file as File;
+  const blob = await put(`notes/${Date.now()}-${safeFile.name}`, safeFile, { access: 'public' });
   return NextResponse.json({ url: blob.url }, { status: 201 });
 }
