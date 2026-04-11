@@ -1,7 +1,14 @@
 import { Pool } from 'pg';
 
+function getConnectionString(): string {
+  const url = process.env.POSTGRES_URL ?? '';
+  // Supabase URLs contain sslmode=require which causes pg to verify certs.
+  // Replace with sslmode=no-verify to allow self-signed Supabase certs.
+  return url.replace(/sslmode=require/, 'sslmode=no-verify');
+}
+
 const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
+  connectionString: getConnectionString(),
   ssl: { rejectUnauthorized: false },
   max: 5,
 });
