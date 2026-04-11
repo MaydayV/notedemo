@@ -1,4 +1,10 @@
-import { sql } from '@vercel/postgres';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false },
+  max: 5,
+});
 
 export type DbUser = {
   id: string;
@@ -15,12 +21,12 @@ export type DbNote = {
 };
 
 export async function getUserByUsername(username: string): Promise<DbUser | null> {
-  const result = await sql<DbUser>`
-    select id, username, password_hash
-    from users
-    where username = ${username}
-    limit 1
-  `;
+  const result = await pool.query<DbUser>(
+    'SELECT id, username, password_hash FROM users WHERE username = $1 LIMIT 1',
+    [username],
+  );
 
   return result.rows[0] ?? null;
 }
+
+export { pool };
