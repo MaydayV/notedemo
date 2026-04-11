@@ -23,7 +23,7 @@ export default async function NotesPage() {
           <li key={note.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}>
             <Link href={`/notes/${note.id}`}>{note.title}</Link>
             <p style={{ margin: '8px 0 0', color: '#666' }}>
-              更新于 {new Date(note.updated_at).toLocaleString()}
+              更新于 {new Date(note.updated_at).toLocaleString('zh-CN')}
             </p>
           </li>
         ))}

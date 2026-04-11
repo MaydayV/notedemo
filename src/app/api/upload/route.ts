@@ -2,7 +2,7 @@ import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { validateUpload } from '@/lib/upload';
+import { sanitizeFilename, validateUpload } from '@/lib/upload';
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   }
 
   const safeFile = file as File;
-  const blob = await put(`notes/${Date.now()}-${safeFile.name}`, safeFile, { access: 'public' });
+  const safeName = sanitizeFilename(safeFile.name);
+  const blob = await put(`notes/${Date.now()}-${safeName}`, safeFile, { access: 'public' });
   return NextResponse.json({ url: blob.url }, { status: 201 });
 }

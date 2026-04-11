@@ -5,7 +5,7 @@ export function validateUpload(file: File | null): 'file_required' | 'invalid_ty
     return 'file_required';
   }
 
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
     return 'invalid_type';
   }
 
@@ -14,4 +14,9 @@ export function validateUpload(file: File | null): 'file_required' | 'invalid_ty
   }
 
   return null;
+}
+
+export function sanitizeFilename(name: string): string {
+  const base = name.replace(/.*[\\/]/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+  return base.slice(0, 100) || 'upload';
 }

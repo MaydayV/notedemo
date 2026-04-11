@@ -20,7 +20,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const payload = await request.json();
+  let payload: unknown;
+  try {
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
+  }
+
   const parsed = noteSchema.safeParse(payload);
 
   if (!parsed.success) {
