@@ -1,16 +1,27 @@
-import { Pool } from 'pg';
+import mysql from 'mysql2/promise';
 
-function getConnectionString(): string {
-  const url = process.env.POSTGRES_URL ?? '';
-  // Supabase URLs contain sslmode=require which causes pg to verify certs.
-  // Replace with sslmode=no-verify to allow self-signed Supabase certs.
-  return url.replace(/sslmode=require/, 'sslmode=no-verify');
+function getConfig() {
+  // Support either full MYSQL_DSN or separate parts (avoids special-char issues in panel UIs)
+  const dsn = process.env.MYSQL_DSN;
+  if (dsn) {
+    return { uri: dsn };
+  }
+
+  return {
+    host: process.env.MYSQL_HOST || '127.0.0.1',
+    port: Number(process.env.MYSQL_PORT || '3306'),
+    user: process.env.MYSQL_USER || 'root',
+    password: process.env.MYSQL_PASS || '123456',
+    database: process.env.MYSQL_DB || 'notedemo',
+    charset: 'utf8mb4',
+    timezone: '+08:00',
+  };
 }
 
-const pool = new Pool({
-  connectionString: getConnectionString(),
-  ssl: { rejectUnauthorized: false },
-  max: 5,
+const pool = mysql.createPool({
+  ...getConfig(),
+  waitForConnections: true,
+  connectionLimit: 5,
 });
 
 export type DbUser = {
@@ -28,12 +39,12 @@ export type DbNote = {
 };
 
 export async function getUserByUsername(username: string): Promise<DbUser | null> {
-  const result = await pool.query<DbUser>(
-    'SELECT id, username, password_hash FROM users WHERE username = $1 LIMIT 1',
+  const [rows] = await pool.execute<mysql.RowDataPacket[]>(
+    'SELECT id, username, password_hash FROM users WHERE username = ? LIMIT 1',
     [username],
   );
 
-  return result.rows[0] ?? null;
+  return (rows[0] as DbUser) ?? null;
 }
 
 export { pool };

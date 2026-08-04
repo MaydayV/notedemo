@@ -1,16 +1,14 @@
-create extension if not exists "pgcrypto";
+CREATE TABLE IF NOT EXISTS users (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  password_hash VARCHAR(200) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-create table if not exists users (
-  id uuid primary key default gen_random_uuid(),
-  username text not null unique,
-  password_hash text not null,
-  created_at timestamptz not null default now()
-);
-
-create table if not exists notes (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  content text not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+CREATE TABLE IF NOT EXISTS notes (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  content MEDIUMTEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
